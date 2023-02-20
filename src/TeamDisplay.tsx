@@ -4,18 +4,19 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-balham.css";
 
-interface FantasyTeam {
-    fantasyTeam: string;
+interface Props {
+  fantasyTeam?: string;
+  leaguePlayers?: Array<object>;
 }
 
-export default function TeamDisplay({fantasyTeam}:FantasyTeam) {
+export default function TeamDisplay({fantasyTeam="", leaguePlayers=[]}: Props) {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<Array<object>>([]);
 
   const [columnDefs] = useState([
     { field: "Name", checkboxSelection: true, minWidth: 200 },
-    { field: "Fantasy Team", minWidth: 150},
+    { field: "Fantasy Team", minWidth: 150 },
     { field: "PTS" },
     { field: "BLK" },
     { field: "STL" },
@@ -29,11 +30,11 @@ export default function TeamDisplay({fantasyTeam}:FantasyTeam) {
   ]);
 
   const gridRef = useRef(null);
+  const ENDPOINT = process.env.REACT_APP_ENDPOINT;
 
   useEffect(() => {
-    fetch(
-      "https://pl7wfzdcfy2pn3hpb6yasvquwe0vxlfa.lambda-url.us-east-1.on.aws/"
-    )
+    if (leaguePlayers.length === 0) {
+        fetch(`https://${ENDPOINT}.lambda-url.us-east-1.on.aws/`)
       .then((res) => res.json())
       .then(
         (result) => {
@@ -49,7 +50,11 @@ export default function TeamDisplay({fantasyTeam}:FantasyTeam) {
           setError(error);
         }
       );
-  }, []);
+    } else {
+        setIsLoaded(true);
+        setItems(leaguePlayers);
+    }
+  }, [leaguePlayers, ENDPOINT]);
 
   // access API from event object
   const onGridReady = (e: {
@@ -72,7 +77,6 @@ export default function TeamDisplay({fantasyTeam}:FantasyTeam) {
           columnDefs={columnDefs}
           rowSelection={"multiple"}
           onGridReady={onGridReady}
-          groupSelectsChildren={true}
         ></AgGridReact>
       </div>
     </div>

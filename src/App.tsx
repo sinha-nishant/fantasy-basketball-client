@@ -7,7 +7,7 @@ function App() {
 
   return (
     <div className="App">
-      <TeamDisplay fantasyTeam=""></TeamDisplay>
+      <TeamDisplay></TeamDisplay>
     </div>
   );
 }
