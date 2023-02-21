@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import logo from "./logo.svg";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-balham.css";
@@ -9,7 +8,10 @@ interface Props {
   leaguePlayers?: Array<object>;
 }
 
-export default function TeamDisplay({fantasyTeam="", leaguePlayers=[]}: Props) {
+export default function TeamRoster({
+  fantasyTeam = "",
+  leaguePlayers = [],
+}: Props) {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [items, setItems] = useState<Array<object>>([]);
@@ -34,25 +36,25 @@ export default function TeamDisplay({fantasyTeam="", leaguePlayers=[]}: Props) {
 
   useEffect(() => {
     if (leaguePlayers.length === 0) {
-        fetch(`https://${ENDPOINT}.lambda-url.us-east-1.on.aws/`)
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          console.log(result);
-          setIsLoaded(true);
-          setItems(result);
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          setIsLoaded(true);
-          setError(error);
-        }
-      );
+      fetch(`https://${ENDPOINT}.lambda-url.us-east-1.on.aws/`)
+        .then((res) => res.json())
+        .then(
+          (result) => {
+            console.log(result);
+            setIsLoaded(true);
+            setItems(result);
+          },
+          // Note: it's important to handle errors here
+          // instead of a catch() block so that we don't swallow
+          // exceptions from actual bugs in components.
+          (error) => {
+            setIsLoaded(true);
+            setError(error);
+          }
+        );
     } else {
-        setIsLoaded(true);
-        setItems(leaguePlayers);
+      setIsLoaded(true);
+      setItems(leaguePlayers);
     }
   }, [leaguePlayers, ENDPOINT]);
 
@@ -66,7 +68,7 @@ export default function TeamDisplay({fantasyTeam="", leaguePlayers=[]}: Props) {
   };
 
   return (
-    <div className="TeamDisplay">
+    <div className="TeamRoster">
       <div
         className="ag-theme-balham"
         style={{ height: "90vh", width: "90%", margin: "auto" }}

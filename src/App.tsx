@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import logo from "./logo.svg";
-import TeamDisplay from "./TeamDisplay";
+import TeamRoster from "./TeamRoster";
+import Summary from "./Summary";
 import "./App.css";
 
-function App() {
+const fantasyTeams: Array<string> = ["Lil Nish", "Shenanigans Fc"];
 
+function App() {
+  //TODO: create page with agg stats from each team
   return (
     <div className="App">
-      <TeamDisplay></TeamDisplay>
+      <Summary fantasyTeams={fantasyTeams}></Summary>
     </div>
   );
 }
