@@ -1,40 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-balham.css";
+import { Player } from "./App";
 
-interface Player {
-  Name: string;
-  "Fantasy Team": string;
-  PTS: number;
-  BLK: number;
-  STL: number;
-  TO: number;
-  REB: number;
-  FGA: number;
-  FGM: number;
-  "3PTA": number;
-  "3PTM": number;
-  AST: number;
-}
-
-interface SummaryData {
-  "Fantasy Team": string;
-  PTS: number;
-  AST: number;
-  BLK: number;
-  STL: number;
-  REB: number;
-  AFG: number;
-  ATO: number;
-}
-
-interface FantasyTeams {
+interface Props {
   fantasyTeams: Array<string>;
+  players: Array<Player>;
 }
 
-export default function Summary(fantasyTeams: FantasyTeams) {
-  const [error, setError] = useState(null);
+export default function Summary({ fantasyTeams, players }: Props) {
+  console.log("players in summary ", players);
+
   const [summaries, setSummaries] = useState<Array<object>>([]);
 
   const [columnDefs] = useState([
@@ -46,14 +23,19 @@ export default function Summary(fantasyTeams: FantasyTeams) {
     { field: "REB" },
     { field: "AFG" },
     { field: "ATO" },
+    { field: "TO" },
   ]);
 
   const gridRef = useRef(null);
-  const ENDPOINT = process.env.REACT_APP_ENDPOINT;
 
-  function getSummaries(fantasyTeams: FantasyTeams, players: Array<Player>) {
+  function getSummaries(
+    fantasyTeams: Props["fantasyTeams"],
+    players: Props["players"]
+  ) {
+    console.log(fantasyTeams);
+    console.log(players);
     let summaries: any[] = [];
-    fantasyTeams.fantasyTeams.forEach((fantasyTeam) => {
+    fantasyTeams.forEach((fantasyTeam) => {
       const teamPlayers = getPlayersInTeam(fantasyTeam, players);
       let PTS = 0;
       let AST = 0;
@@ -63,7 +45,6 @@ export default function Summary(fantasyTeams: FantasyTeams) {
       let REB = 0;
       let FGA = 0;
       let FGM = 0;
-      let ThreeAtt = 0;
       let ThreeMade = 0;
       teamPlayers.forEach((player) => {
         PTS += player.PTS;
@@ -74,7 +55,6 @@ export default function Summary(fantasyTeams: FantasyTeams) {
         REB += player.REB;
         FGA += player.FGA;
         FGM += player.FGM;
-        ThreeAtt += player["3PTA"];
         ThreeMade += player["3PTM"];
       });
 
@@ -85,10 +65,11 @@ export default function Summary(fantasyTeams: FantasyTeams) {
         PTS: PTS,
         AST: AST,
         BLK: BLK,
-        STL: TO,
+        STL: STL,
         REB: REB,
         AFG: AFG,
         ATO: ATO,
+        TO: TO,
       };
       for (const key in summary) {
         summary[key] = +summary[key].toFixed(3);
@@ -106,23 +87,6 @@ export default function Summary(fantasyTeams: FantasyTeams) {
     });
   }
 
-  useEffect(() => {
-    fetch(`https://${ENDPOINT}.lambda-url.us-east-1.on.aws/`)
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          setSummaries(getSummaries(fantasyTeams, result));
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          setError(error);
-        }
-      );
-  }, [ENDPOINT, fantasyTeams]);
-
-  // access API from event object
   const onGridReady = (e: {
     api: { sizeColumnsToFit: () => void };
     columnApi: { resetColumnState: () => void };
@@ -130,6 +94,12 @@ export default function Summary(fantasyTeams: FantasyTeams) {
     e.api.sizeColumnsToFit();
     e.columnApi.resetColumnState();
   };
+
+  const test = null;
+
+  useLayoutEffect(() => {
+    setSummaries(getSummaries(fantasyTeams, players));
+  }, []);
 
   return (
     <div className="Summary">
